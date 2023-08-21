@@ -1,9 +1,7 @@
 {
   "build": {
-    "beforeDevCommand": "",
-    "beforeBuildCommand": "",
-    "devPath": "http://localhost:8000/#/?widgetId=1234-matrix_widget_id-1234&userId=1234-matrix_user_id-1234",
-    "distDir": "../src",
+    "devPath": "http://localhost:8000/#/?widgetId=w_id_1234&userId=timo",
+    "distDir": "/Users/timo/Projects/matrix-widget-api/examples/widget?widgetId=w_id_1234&userId=timo",
     "withGlobalTauri": true
   },
   "package": {
@@ -32,6 +30,9 @@
     },
     "security": {
       "csp": null
-    }
+    },
+    "windows": [
+      
+    ]
   }
 }
