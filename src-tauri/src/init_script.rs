@@ -3,8 +3,14 @@ console.log("injecting tauri listener");
 window.addEventListener(
     "message",
     (event) => {
+        
         let message = {data: event.data, origin: event.origin}
-        window.__TAURI__.tauri.invoke("handle_post_message", { message: JSON.stringify(message.data) });
+        if (message.data.response && message.data.api == "toWidget" 
+        || !message.data.response && message.data.api == "fromWidget") {
+          window.__TAURI__.tauri.invoke("handle_post_message", { message: JSON.stringify(message.data) });
+        }else{
+          console.log("-- skipped event handling by the client because it is send from the client itself.");
+        }
     },
     false,
   );

@@ -1,6 +1,6 @@
 use std::{env, process::exit};
 
-pub fn get_args() -> (String, String, String){
+pub fn _get_args() -> (String, String, String){
     match (env::args().nth(1), env::args().nth(2), env::args().nth(3)) {
         (Some(a), Some(b), Some(c)) => (a, b, c),
         _ => {
