@@ -41,7 +41,7 @@ pub fn widget_driver_setup(
             from: in_rx,
             to: out_tx,
         },
-        info: WidgetSettings {
+        settings: WidgetSettings {
             id: WIDGET_ID.to_owned(),
             init_on_load: true,
         },

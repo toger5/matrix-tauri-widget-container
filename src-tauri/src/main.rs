@@ -6,8 +6,8 @@ mod init_script;
 mod matrix;
 mod widget_driver;
 
-use tauri::Window;
 use async_channel::{unbounded, Sender};
+use tauri::Window;
 
 use init_script::INIT_SCRIPT;
 use matrix_sdk::config::SyncSettings;
@@ -16,7 +16,7 @@ use widget_driver::widget_driver_setup;
 const WIDGET_ID: &str = "w_id_1234";
 
 fn send_post_message(window: &tauri::Window, message: &str) {
-    let script = format!("postMessage({},'*')", message);
+    let script = format!("postMessage({},'https://call.element.io')", message);
     // println!("eval js: {}", script);
 
     window.eval(&script).expect("could not eval js");
@@ -34,7 +34,7 @@ fn app_setup(
     )
     .initialization_script(INIT_SCRIPT)
     .build()?;
-    window.open_devtools();
+    // window.open_devtools();
     on_page_load(window, &url);
 
     Ok(())
@@ -56,6 +56,9 @@ fn handle_post_message(
 
 #[tokio::main]
 async fn main() {
+    // start logger
+    tracing_subscriber::fmt::init();
+
     // parse the command line for homeserver, username and password
     let (homeserver_url, username, password) = (
         "http://localhost:8008".to_owned(),

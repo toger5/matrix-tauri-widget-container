@@ -1,7 +1,8 @@
 {
   "build": {
-    "devPath": "http://localhost:8000/#/?widgetId=w_id_1234&userId=timo",
-    "distDir": "/Users/timo/Projects/matrix-widget-api/examples/widget?widgetId=w_id_1234&userId=timo",
+    "devPath": "https://call.element.io/room?widgetId=w_id_1234&parentUrl=https%3A%2F%2Fcall.element.io&embed=&preload=&hideHeader=&userId=%40timo%3Amatrix.org&deviceId=ONLDUUSMTR&roomId=%21IOSsIxnwmlSWYotZEl%253Amy.matrix.host&baseUrl=https%3A%2F%2Fmatrix-client.matrix.org&lang=en-us&fontScale=1",
+    "distDir": "http://localhost:8000/#/?widgetId=w_id_1234&userId=timo",
+
     "withGlobalTauri": true
   },
   "package": {
@@ -19,7 +20,7 @@
     "bundle": {
       "active": true,
       "targets": "all",
-      "identifier": "com.tauri.dev",
+      "identifier": "io.element.tauri-widget-container",
       "icon": [
         "icons/32x32.png",
         "icons/128x128.png",

@@ -2483,6 +2483,7 @@ dependencies = [
  "serde",
  "serde_json",
  "tokio",
+ "tracing",
  "wasm-bindgen-futures",
 ]
 
@@ -4382,6 +4383,7 @@ dependencies = [
  "tauri",
  "tauri-build",
  "tokio",
+ "tracing-subscriber",
 ]
 
 [[package]]
