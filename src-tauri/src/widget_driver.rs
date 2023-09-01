@@ -24,14 +24,14 @@ pub fn widget_driver_setup(
     in_rx: Receiver<String>,
     out_rx: Receiver<String>,
     out_tx: Sender<String>,
+    room_id: &str,
 ) {
-    let room_id = <&RoomId>::try_from("!IOSsIxnwmlSWYotZEl:my.matrix.host").unwrap();
-    println!("{}", room_id);
+    let room_id = <&RoomId>::try_from(room_id).unwrap();
+    println!("room id used by the driver: {} ", room_id);
     let Some(room) = client.get_room(&room_id) else {panic!("could not get room")};
 
     tokio::spawn(async move {
         while let Ok(msg) = out_rx.recv().await {
-            println!("\n## -> Outgoing msg: {}", msg);
             send_post_message(&window, &msg);
         }
     });
