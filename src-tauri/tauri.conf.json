@@ -1,6 +1,7 @@
 {
   "build": {
-    "withGlobalTauri": true
+    "withGlobalTauri": true,
+    "devPath": "../src/"
   },
   "package": {
     "productName": "tauri-widget-container",
@@ -41,6 +42,11 @@
         },
         {
           "domain": "pr1348--element-call.netlify.app",
+          "windows": ["widget_window"],
+          "enableTauriAPI": true
+        },
+        {
+          "domain": "pr1474--element-call.netlify.app",
           "windows": ["widget_window"],
           "enableTauriAPI": true
         }

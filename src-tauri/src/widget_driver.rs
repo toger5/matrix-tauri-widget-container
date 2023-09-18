@@ -1,6 +1,7 @@
 use async_channel::{Receiver, Sender};
 use matrix_sdk::{
     async_trait,
+    config::SyncSettings,
     ruma::RoomId,
     widget::{
         run_client_widget_api, Comm, Permissions, PermissionsProvider, Widget, WidgetSettings,
@@ -8,7 +9,7 @@ use matrix_sdk::{
     Client,
 };
 
-use crate::{send_post_message, WIDGET_ID}; // mod placeholder_matrix_sdk_widget_driver;
+use crate::{send_post_message, WIDGET_ID};
 
 struct PermProv {}
 #[async_trait]
@@ -46,9 +47,12 @@ pub fn widget_driver_setup(
             init_on_load: true,
         },
     };
+    tokio::spawn(async {
+        run_client_widget_api(wid, PermProv {}, room).await;
+    });
+    let s_client = client.clone();
     tokio::spawn(async move {
-        let _ = run_client_widget_api(wid, PermProv {}, room)
-            .await
-            .map_err(|e| println!("run client widget api error: {}", e.to_string()));
+        let sync_result = s_client.sync(SyncSettings::default()).await;
+        println!("{:?}", sync_result);
     });
 }

@@ -10,17 +10,20 @@ mod widget_driver;
 
 use async_channel::{unbounded, Sender};
 use cmd::{get_args, Args};
+use serde_json::json;
 use tauri::Window;
 
 use init_script::INIT_SCRIPT;
 use matrix_sdk::config::SyncSettings;
 use widget_driver::widget_driver_setup;
 
+use crate::custom_messages::add_response;
+
 const WIDGET_ID: &str = "w_id_1234";
 
 fn send_post_message(window: &tauri::Window, message: &str) {
     println!("\n## -> Outgoing msg: {}", message);
-    let script = format!("postMessage({},'{}')", message, element_call_url::BASE_URL);
+    let script = format!("postMessage({},'{}')", message, element_call_url::EC_URL);
     window.eval(&script).expect("could not eval js");
 }
 
@@ -49,9 +52,35 @@ fn handle_post_message(sender: tauri::State<Sender<String>>, window: tauri::Wind
 
     println!("\n## <- Incoming msg: {}", message);
     if message.contains("watch_turn_servers") {
+        send_post_message(
+            &window,
+            &add_response(message, json!({}))
+                .expect("could not add response to watch_turn_servers"),
+        );
         send_post_message(&window, &custom_messages::join_action(WIDGET_ID));
-        println!("Did not pass message to widget driver but handled it locally")
-    } else {
+        println!(
+            "Did not pass message (watch_turn_servers) to widget driver but handled it locally"
+        )
+    }
+    // else if message.contains("set_always_on_screen") {
+    //     send_post_message(
+    //         &window,
+    //         &add_response(message, json!({}))
+    //             .expect("could not add response to set_always_on_screen"),
+    //     );
+    // } else if message.contains("im.vector.hangup") {
+    //     send_post_message(
+    //         &window,
+    //         &add_response(message, json!({})).expect("could not add response to im.vector.hangup"),
+    //     );
+    // } else if message.contains("io.element.tile_layout") {
+    //     send_post_message(
+    //         &window,
+    //         &add_response(message, json!({}))
+    //             .expect("could not add response to io.element.tile_layout"),
+    //     );
+    // }
+    else {
         let _ = sender
             .send_blocking(message.to_owned())
             .map_err(|err| println!("Could not send message to driver: {}", err.to_string()));
