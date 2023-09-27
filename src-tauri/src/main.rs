@@ -1,17 +1,14 @@
 // Prevents additional console window on Windows in release, DO NOT REMOVE!!
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
-use url::Url;
 mod cmd;
 mod custom_messages;
-mod element_call_url;
 mod init_script;
 mod matrix;
 mod widget_driver;
 
 use async_channel::unbounded;
 use cmd::{get_args, Args};
-use element_call_url::EC_URL;
 
 use init_script::INIT_SCRIPT;
 use matrix_sdk::{
@@ -20,9 +17,7 @@ use matrix_sdk::{
     widget::{ClientProperties, WidgetSettings},
     Client,
 };
-use widget_driver::{widget_driver_setup, WidgetData};
-
-use crate::widget_driver::handle_post_message;
+use widget_driver::{handle_post_message, widget_driver_setup, WidgetData};
 
 fn app_setup(
     app: &mut tauri::App,
@@ -53,8 +48,8 @@ async fn main() {
         room_id,
     } = get_args();
 
-    let widget_settings: WidgetSettings = WidgetSettings::new_virtual_element_call_widget(
-        EC_URL.to_owned(),
+    let widget_settings = WidgetSettings::new_virtual_element_call_widget(
+        "https://call.element.io".to_owned(),
         "w_id_1234".to_owned(),
         None,
         None,
@@ -88,8 +83,10 @@ async fn main() {
 
     let ruma_room_id = <&RoomId>::try_from(room_id.as_str()).unwrap();
     let Some(room) = client.get_room(&ruma_room_id) else {panic!("could not get room")};
+
     let props = ClientProperties::new("tauri.widget.container", None, None);
-    let ec_url = widget_settings
+
+    let generated_url = widget_settings
         .generate_url(&room, props)
         .await
         .expect("could not parse url");
@@ -102,9 +99,9 @@ async fn main() {
         client_widget_rx,
         widget_client_rx,
         tx_client_widget,
-        room_id,
+        room,
         widget_settings: widget_settings.clone(),
-        url: ec_url,
+        url: generated_url,
     };
 
     tauri::Builder::default()

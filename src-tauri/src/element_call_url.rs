@@ -1,1 +1,0 @@
-pub static EC_URL: &str = "https://call.element.io"; //https://pr1474--element-call.netlify.app //"https://pr1348--element-call.netlify.app"; //"https://call.element.io"; // "https://call.element.dev";
