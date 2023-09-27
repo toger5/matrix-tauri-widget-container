@@ -9,7 +9,7 @@ use matrix_sdk::{
     Client,
 };
 
-use crate::{send_post_message, WIDGET_ID};
+use crate::send_post_message;
 
 struct PermProv {}
 #[async_trait]
@@ -26,6 +26,7 @@ pub fn widget_driver_setup(
     out_rx: Receiver<String>,
     out_tx: Sender<String>,
     room_id: &str,
+    widget_settings: WidgetSettings,
 ) {
     let room_id = <&RoomId>::try_from(room_id).unwrap();
     println!("room id used by the driver: {} ", room_id);
@@ -36,20 +37,20 @@ pub fn widget_driver_setup(
             send_post_message(&window, &msg);
         }
     });
+
     // ------ Setup everything, so the driver can access the room + the call callback on the widget
     let wid = Widget {
         comm: Comm {
             from: in_rx,
             to: out_tx,
         },
-        settings: WidgetSettings {
-            id: WIDGET_ID.to_owned(),
-            init_on_load: true,
-        },
+        settings: widget_settings,
     };
+
     tokio::spawn(async {
         run_client_widget_api(wid, PermProv {}, room).await;
     });
+
     let s_client = client.clone();
     tokio::spawn(async move {
         let sync_result = s_client.sync(SyncSettings::default()).await;

@@ -122,6 +122,12 @@ dependencies = [
 ]
 
 [[package]]
+name = "as_variant"
+version = "1.2.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "f38fa22307249f86fb7fad906fcae77f2564caeb56d7209103c551cd1cf4798f"
+
+[[package]]
 name = "assign"
 version = "1.1.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -134,7 +140,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "81953c529336010edd6d8e358f886d9581267795c61b19475b71314bffa46d35"
 dependencies = [
  "concurrent-queue",
- "event-listener",
+ "event-listener 2.5.3",
  "futures-core",
 ]
 
@@ -193,7 +199,7 @@ version = "2.7.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "fa24f727524730b077666307f2734b4a1a1c57acb79193127dcc8914d5242dd7"
 dependencies = [
- "event-listener",
+ "event-listener 2.5.3",
 ]
 
 [[package]]
@@ -207,7 +213,7 @@ dependencies = [
  "autocfg",
  "blocking",
  "cfg-if",
- "event-listener",
+ "event-listener 2.5.3",
  "futures-lite",
  "rustix",
  "signal-hook",
@@ -230,7 +236,7 @@ dependencies = [
  "futures-core",
  "futures-io",
  "futures-lite",
- "gloo-timers",
+ "gloo-timers 0.2.6",
  "kv-log-macro",
  "log",
  "memchr",
@@ -1189,20 +1195,32 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "0206175f82b8d6bf6652ff7d71a1e27fd2e4efde587fd368662814d6ec1d9ce0"
 
 [[package]]
-name = "eyeball"
-version = "0.8.6"
+name = "event-listener"
+version = "3.0.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "78a7b57c052e83f2bd8d756fc379132e43d3786f3767856026ee3757868f099f"
+checksum = "29e56284f00d94c1bc7fd3c77027b4623c88c1f53d8d2394c6199f2921dea325"
+dependencies = [
+ "concurrent-queue",
+ "parking",
+ "pin-project-lite",
+]
+
+[[package]]
+name = "eyeball"
+version = "0.8.7"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "42482893d982111055ce4b24234d6250396d3785767c6b04cedd84612a0b80fb"
 dependencies = [
  "futures-core",
  "readlock",
+ "tracing",
 ]
 
 [[package]]
 name = "eyeball-im"
-version = "0.2.6"
+version = "0.4.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "4d999ff633cd7243e8b9efc2a1e35846517f16ce4c3c87a70e0a829d8fb29af3"
+checksum = "f5776e9a376b8cd9cafcabf7ed07cc639c18c493d6d8a61fd8265ef013402cbe"
 dependencies = [
  "futures-core",
  "imbl",
@@ -1668,10 +1686,22 @@ dependencies = [
 ]
 
 [[package]]
-name = "gloo-utils"
-version = "0.1.7"
+name = "gloo-timers"
+version = "0.3.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "037fcb07216cb3a30f7292bd0176b050b7b9a052ba830ef7d5d65f6dc64ba58e"
+checksum = "bbb143cf96099802033e0d4f4963b19fd2e0b728bcf076cd9cf7f6634f092994"
+dependencies = [
+ "futures-channel",
+ "futures-core",
+ "js-sys",
+ "wasm-bindgen",
+]
+
+[[package]]
+name = "gloo-utils"
+version = "0.2.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "0b5555354113b18c547c1d3a98fbf7fb32a9ff4f6fa112ce823a21641a0ba3aa"
 dependencies = [
  "js-sys",
  "serde",
@@ -2266,6 +2296,12 @@ dependencies = [
 ]
 
 [[package]]
+name = "language-tags"
+version = "0.3.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "d4345964bb142484797b161f473a503a434de77149dd8c7427788c6e13379388"
+
+[[package]]
 name = "lazy_static"
 version = "1.4.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -2414,6 +2450,7 @@ name = "matrix-sdk"
 version = "0.6.2"
 dependencies = [
  "anymap2",
+ "as_variant",
  "async-channel",
  "async-stream",
  "async-trait",
@@ -2422,14 +2459,15 @@ dependencies = [
  "bytesize",
  "cfg-vis",
  "dashmap",
- "event-listener",
+ "event-listener 3.0.0",
  "eyeball",
  "eyeball-im",
  "futures-core",
  "futures-util",
- "gloo-timers",
+ "gloo-timers 0.3.0",
  "http",
  "imbl",
+ "language-tags",
  "matrix-sdk-base",
  "matrix-sdk-common",
  "matrix-sdk-indexeddb",
@@ -2446,6 +2484,7 @@ dependencies = [
  "tokio",
  "tracing",
  "url",
+ "urlencoding",
  "uuid",
  "zeroize",
 ]
@@ -2454,6 +2493,7 @@ dependencies = [
 name = "matrix-sdk-base"
 version = "0.6.1"
 dependencies = [
+ "as_variant",
  "async-trait",
  "bitflags 2.3.3",
  "dashmap",
@@ -2475,13 +2515,15 @@ dependencies = [
 name = "matrix-sdk-common"
 version = "0.6.0"
 dependencies = [
+ "async-trait",
  "futures-core",
  "futures-util",
- "gloo-timers",
+ "gloo-timers 0.3.0",
  "instant",
  "ruma",
  "serde",
  "serde_json",
+ "thiserror",
  "tokio",
  "tracing",
  "wasm-bindgen-futures",
@@ -2492,10 +2534,10 @@ name = "matrix-sdk-crypto"
 version = "0.6.0"
 dependencies = [
  "aes",
+ "as_variant",
  "async-std",
  "async-trait",
  "atomic",
- "base64 0.21.2",
  "byteorder",
  "cfg-if",
  "ctr",
@@ -3512,20 +3554,21 @@ dependencies = [
 [[package]]
 name = "ruma"
 version = "0.8.2"
-source = "git+https://github.com/ruma/ruma?rev=5a628c35e3cfe58e69113baa35b831b468d91e0e#5a628c35e3cfe58e69113baa35b831b468d91e0e"
+source = "git+https://github.com/ruma/ruma?rev=6927393caa0fbf6dc07611e4a9cae3f281265cba#6927393caa0fbf6dc07611e4a9cae3f281265cba"
 dependencies = [
  "assign",
  "js_int",
  "js_option",
  "ruma-client-api",
  "ruma-common",
+ "ruma-events",
  "ruma-federation-api",
 ]
 
 [[package]]
 name = "ruma-client-api"
 version = "0.16.2"
-source = "git+https://github.com/ruma/ruma?rev=5a628c35e3cfe58e69113baa35b831b468d91e0e#5a628c35e3cfe58e69113baa35b831b468d91e0e"
+source = "git+https://github.com/ruma/ruma?rev=6927393caa0fbf6dc07611e4a9cae3f281265cba#6927393caa0fbf6dc07611e4a9cae3f281265cba"
 dependencies = [
  "assign",
  "bytes",
@@ -3534,6 +3577,7 @@ dependencies = [
  "js_option",
  "maplit",
  "ruma-common",
+ "ruma-events",
  "serde",
  "serde_html_form",
  "serde_json",
@@ -3542,8 +3586,9 @@ dependencies = [
 [[package]]
 name = "ruma-common"
 version = "0.11.3"
-source = "git+https://github.com/ruma/ruma?rev=5a628c35e3cfe58e69113baa35b831b468d91e0e#5a628c35e3cfe58e69113baa35b831b468d91e0e"
+source = "git+https://github.com/ruma/ruma?rev=6927393caa0fbf6dc07611e4a9cae3f281265cba#6927393caa0fbf6dc07611e4a9cae3f281265cba"
 dependencies = [
+ "as_variant",
  "base64 0.21.2",
  "bytes",
  "form_urlencoded",
@@ -3552,7 +3597,6 @@ dependencies = [
  "indexmap 2.0.0",
  "js-sys",
  "js_int",
- "js_option",
  "konst",
  "percent-encoding",
  "rand 0.8.5",
@@ -3570,12 +3614,35 @@ dependencies = [
 ]
 
 [[package]]
+name = "ruma-events"
+version = "0.26.0"
+source = "git+https://github.com/ruma/ruma?rev=6927393caa0fbf6dc07611e4a9cae3f281265cba#6927393caa0fbf6dc07611e4a9cae3f281265cba"
+dependencies = [
+ "as_variant",
+ "indexmap 2.0.0",
+ "js_int",
+ "js_option",
+ "percent-encoding",
+ "regex",
+ "ruma-common",
+ "ruma-identifiers-validation",
+ "ruma-macros",
+ "serde",
+ "serde_json",
+ "thiserror",
+ "tracing",
+ "url",
+ "wildmatch",
+]
+
+[[package]]
 name = "ruma-federation-api"
 version = "0.7.1"
-source = "git+https://github.com/ruma/ruma?rev=5a628c35e3cfe58e69113baa35b831b468d91e0e#5a628c35e3cfe58e69113baa35b831b468d91e0e"
+source = "git+https://github.com/ruma/ruma?rev=6927393caa0fbf6dc07611e4a9cae3f281265cba#6927393caa0fbf6dc07611e4a9cae3f281265cba"
 dependencies = [
  "js_int",
  "ruma-common",
+ "ruma-events",
  "serde",
  "serde_json",
 ]
@@ -3583,7 +3650,7 @@ dependencies = [
 [[package]]
 name = "ruma-identifiers-validation"
 version = "0.9.1"
-source = "git+https://github.com/ruma/ruma?rev=5a628c35e3cfe58e69113baa35b831b468d91e0e#5a628c35e3cfe58e69113baa35b831b468d91e0e"
+source = "git+https://github.com/ruma/ruma?rev=6927393caa0fbf6dc07611e4a9cae3f281265cba#6927393caa0fbf6dc07611e4a9cae3f281265cba"
 dependencies = [
  "js_int",
  "thiserror",
@@ -3592,7 +3659,7 @@ dependencies = [
 [[package]]
 name = "ruma-macros"
 version = "0.11.3"
-source = "git+https://github.com/ruma/ruma?rev=5a628c35e3cfe58e69113baa35b831b468d91e0e#5a628c35e3cfe58e69113baa35b831b468d91e0e"
+source = "git+https://github.com/ruma/ruma?rev=6927393caa0fbf6dc07611e4a9cae3f281265cba#6927393caa0fbf6dc07611e4a9cae3f281265cba"
 dependencies = [
  "once_cell",
  "proc-macro-crate",
@@ -4384,6 +4451,7 @@ dependencies = [
  "tauri-build",
  "tokio",
  "tracing-subscriber",
+ "url",
  "urlencoding",
  "uuid",
 ]
@@ -4751,9 +4819,9 @@ dependencies = [
 
 [[package]]
 name = "url"
-version = "2.4.0"
+version = "2.4.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "50bff7831e19200a85b17131d085c25d7811bc4e186efdaf54bbd132994a88cb"
+checksum = "143b538f18257fac9cad154828a57c6bf5157e1aa604d4816b5995bf6de87ae5"
 dependencies = [
  "form_urlencoded",
  "idna",
@@ -4822,7 +4890,7 @@ checksum = "49874b5167b65d7193b8aba1567f5c7d93d001cafc34600cee003eda787e483f"
 [[package]]
 name = "vodozemac"
 version = "0.4.0"
-source = "git+https://github.com/matrix-org/vodozemac/?rev=e3b658526f6f1dd0a9065c1c96346b796712c425#e3b658526f6f1dd0a9065c1c96346b796712c425"
+source = "git+https://github.com/matrix-org/vodozemac/?rev=23098d391d9a91db7d72a0ce19e69559b4340b13#23098d391d9a91db7d72a0ce19e69559b4340b13"
 dependencies = [
  "aes",
  "arrayvec",
