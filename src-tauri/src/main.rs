@@ -92,13 +92,10 @@ async fn main() {
         .expect("could not parse url");
 
     // create comm channels between widget and driver
-    let (tx_client_widget, client_widget_rx) = unbounded::<String>();
     let (tx_widget_client, widget_client_rx) = unbounded::<String>();
 
     let widget_data = WidgetData {
-        client_widget_rx,
         widget_client_rx,
-        tx_client_widget,
         room,
         widget_settings: widget_settings.clone(),
         url: generated_url,
