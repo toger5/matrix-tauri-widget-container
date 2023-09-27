@@ -9,67 +9,35 @@ mod init_script;
 mod matrix;
 mod widget_driver;
 
-use async_channel::{unbounded, Sender};
+use async_channel::unbounded;
 use cmd::{get_args, Args};
 use element_call_url::EC_URL;
-use serde_json::json;
-use tauri::Window;
 
 use init_script::INIT_SCRIPT;
 use matrix_sdk::{
     config::SyncSettings,
     ruma::RoomId,
     widget::{ClientProperties, WidgetSettings},
+    Client,
 };
-use widget_driver::widget_driver_setup;
+use widget_driver::{widget_driver_setup, WidgetData};
 
-use crate::custom_messages::add_response;
-
-fn send_post_message(window: &tauri::Window, message: &str) {
-    println!("\n## -> Outgoing msg: {}", message);
-    let script = format!("postMessage({},'{}')", message, element_call_url::EC_URL);
-    window.eval(&script).expect("could not eval js");
-}
+use crate::widget_driver::handle_post_message;
 
 fn app_setup(
     app: &mut tauri::App,
-    on_page_load: Box<dyn FnOnce(Window, &str)>,
-    url: Url,
+    client: &Client,
+    widget_data: WidgetData,
 ) -> std::result::Result<(), tauri::Error> {
-    println!("use url:\n{}", url);
-    let element_call_url = tauri::WindowUrl::External(url.clone());
+    println!("use url:\n{}", widget_data.url);
+    let element_call_url = tauri::WindowUrl::External(widget_data.url.clone());
     let window = tauri::WindowBuilder::new(app, "widget_window", element_call_url)
         .initialization_script(INIT_SCRIPT)
         .build()?;
-    on_page_load(window, &url.to_string());
+
+    widget_driver_setup(window, &client, widget_data);
+
     Ok(())
-}
-
-#[tauri::command]
-fn handle_post_message(
-    sender: tauri::State<Sender<String>>,
-    widget_settings: tauri::State<WidgetSettings>,
-    window: tauri::Window,
-    message: &str,
-) {
-    // ------ using the driver to process messages from the widget
-
-    println!("\n## <- Incoming msg: {}", message);
-    if message.contains("watch_turn_servers") {
-        send_post_message(
-            &window,
-            &add_response(message, json!({}))
-                .expect("could not add response to watch_turn_servers"),
-        );
-        send_post_message(&window, &custom_messages::join_action(&widget_settings.id));
-        println!(
-            "Did not pass message (watch_turn_servers) to widget driver but handled it locally"
-        )
-    } else {
-        let _ = sender
-            .send_blocking(message.to_owned())
-            .map_err(|err| println!("Could not send message to driver: {}", err.to_string()));
-    }
 }
 
 #[tokio::main]
@@ -99,10 +67,6 @@ async fn main() {
         None,
     );
 
-    // create comm channels between widget and driver
-    let (out_tx, out_rx) = unbounded::<String>();
-    let (in_tx, in_rx) = unbounded::<String>();
-
     // create the logged in sdk client.
     let client = match matrix::login(homeserver_url.clone(), username.clone(), password.clone())
         .await
@@ -121,6 +85,7 @@ async fn main() {
         .await
         .unwrap()
         .next_batch;
+
     let ruma_room_id = <&RoomId>::try_from(room_id.as_str()).unwrap();
     let Some(room) = client.get_room(&ruma_room_id) else {panic!("could not get room")};
     let props = ClientProperties::new("tauri.widget.container", None, None);
@@ -129,25 +94,22 @@ async fn main() {
         .await
         .expect("could not parse url");
 
-    let room_id_ = room_id.clone();
-    let widget_settings_ = widget_settings.clone();
-    let on_page_load = move |window: tauri::Window, _url: &str| {
-        widget_driver_setup(
-            window,
-            &client,
-            in_rx,
-            out_rx,
-            out_tx.clone(),
-            &(room_id_.clone()),
-            widget_settings_,
-        );
+    // create comm channels between widget and driver
+    let (tx_client_widget, client_widget_rx) = unbounded::<String>();
+    let (tx_widget_client, widget_client_rx) = unbounded::<String>();
+
+    let widget_data = WidgetData {
+        client_widget_rx,
+        widget_client_rx,
+        tx_client_widget,
+        room_id,
+        widget_settings: widget_settings.clone(),
+        url: ec_url,
     };
 
     tauri::Builder::default()
-        .manage(in_tx.clone())
-        .manage(widget_settings.clone())
-        .setup(move |app| Ok(app_setup(app, Box::new(on_page_load), ec_url)?))
-        // .on_page_load(on_page_load)
+        .manage(tx_widget_client)
+        .setup(move |app| Ok(app_setup(app, &client, widget_data)?))
         .invoke_handler(tauri::generate_handler![handle_post_message])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
