@@ -3,15 +3,17 @@ use clone_all::clone_all;
 use matrix_sdk::{
     async_trait,
     config::SyncSettings,
-    widget::{Permissions, PermissionsProvider, WidgetDriver, WidgetDriverHandle, WidgetSettings},
+    widget::{
+        Capabilities, CapabilitiesProvider, WidgetDriver, WidgetDriverHandle, WidgetSettings,
+    },
     Client, Room,
 };
 use url::Url;
 
-struct PermProv {}
+struct CapProv {}
 #[async_trait]
-impl PermissionsProvider for PermProv {
-    async fn acquire_permissions(&self, cap: Permissions) -> Permissions {
+impl CapabilitiesProvider for CapProv {
+    async fn acquire_capabilities(&self, cap: Capabilities) -> Capabilities {
         cap
     }
 }
@@ -78,7 +80,7 @@ pub fn widget_driver_setup(window: tauri::Window, client: &Client, widget_data: 
     });
 
     tokio::spawn(async {
-        let _ = driver.run(room, PermProv {}).await;
+        let _ = driver.run(room, CapProv {}).await;
     });
 
     let client = client.clone();

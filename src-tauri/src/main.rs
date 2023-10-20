@@ -6,14 +6,15 @@ mod custom_messages;
 mod init_script;
 mod matrix;
 mod widget_driver;
-
 use cmd::{get_args, Args};
+use matrix_sdk::Client;
+use matrix_sdk::Room;
 
 use init_script::INIT_SCRIPT;
 use matrix_sdk::{
     config::SyncSettings,
     ruma::RoomId,
-    widget::{ClientProperties, WidgetDriver, WidgetSettings}
+    widget::{ClientProperties, VirtualElementCallWidgetOptions, WidgetDriver, WidgetSettings},
 };
 use tauri::Manager;
 use url::Url;
@@ -31,24 +32,6 @@ async fn main() {
         password,
         room_id,
     } = get_args();
-
-    let widget_settings = WidgetSettings::new_virtual_element_call_widget(
-        // "http://localhost:3000".to_owned(),
-        // "https://pr1675--element-call.netlify.app".to_string(),
-        "https://call.element.dev".to_owned(),
-        "w_id_1234".to_owned(),
-        None,
-        None,
-        None,
-        None,
-        None,
-        None,
-        None,
-        None,
-        None,
-    )
-    .map_err(|e| println!("could not create widget because: {}", e.to_string()))
-    .unwrap();
 
     // create the logged in sdk client.
     let client = match matrix::login(homeserver_url.clone(), username.clone(), password.clone())
@@ -70,11 +53,53 @@ async fn main() {
         .next_batch;
 
     let ruma_room_id = <&RoomId>::try_from(room_id.as_str()).unwrap();
-    let Some(room) = client.get_room(&ruma_room_id) else {
+    let Some(room) = client.get_room(ruma_room_id) else {
         panic!("could not get room")
     };
 
+    // very ugly way to switch between widget driver test / and room_info test
+    // room_info_experiment(client, room).await;
+    element_call(client, room).await;
+}
+
+async fn room_info_experiment(client: Client, room: Room) {
+    println!("Start room info: \n\n {:?}", room.clone_info());
+    tokio::spawn(async move {
+        while room.subscribe_info().next().await.is_some() {
+            // println!("Updated room info: \n\n {:?}", info);
+            println!(
+                "active_call: {}\n\
+                participants: {:?}\n\
+                count: {}",
+                room.has_active_room_call(),
+                room.active_room_call_participants(),
+                room.active_room_call_participants().len(),
+            )
+        }
+    });
+    let _ = client.sync(SyncSettings::default()).await;
+}
+
+async fn element_call(client: Client, room: Room) {
     let props = ClientProperties::new("tauri.widget.container", None, None);
+
+    let options = VirtualElementCallWidgetOptions {
+        element_call_url: "https://call.element.dev".to_owned(),
+        widget_id: "w_id_1234".to_owned(),
+        parent_url: None,
+        hide_header: None,
+        preload: None,
+        font_scale: None,
+        app_prompt: None,
+        skip_lobby: None,
+        confine_to_room: None,
+        analytics_id: None,
+        font: None,
+    };
+
+    let widget_settings = WidgetSettings::new_virtual_element_call_widget(options)
+        .map_err(|e| println!("could not create widget because: {}", e.to_string()))
+        .unwrap();
 
     let generated_url = widget_settings
         .generate_webview_url(&room, props)
@@ -93,7 +118,7 @@ async fn main() {
     tauri::Builder::default()
         .manage(handle)
         .manage(client.clone())
-        .setup(move |app| 
+        .setup(move |app|
             // Ok(app_setup(app, &client, widget_data)?)
             {
             println!("use url:\n{}\n", widget_data.generated_url);
@@ -102,7 +127,7 @@ async fn main() {
             let window = tauri::WindowBuilder::new(app, "widget_window", element_call_url)
                 .initialization_script(INIT_SCRIPT)
                 .build()?;
-        
+
             #[cfg(debug_assertions)] // only include this code on debug builds
             {
                 let window = app.get_window("widget_window").unwrap();
