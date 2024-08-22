@@ -7,6 +7,7 @@ mod init_script;
 mod matrix;
 mod widget_driver;
 use cmd::{get_args, Args};
+use matrix_sdk::widget::EncryptionSystem;
 use matrix_sdk::Client;
 use matrix_sdk::Room;
 
@@ -58,12 +59,12 @@ async fn main() {
     };
 
     // very ugly way to switch between widget driver test / and room_info test
-    // room_info_experiment(client, room).await;
-    element_call(client, room).await;
+    room_info_experiment(client, room).await;
+    // element_call(client, room).await;
 }
 
 async fn room_info_experiment(client: Client, room: Room) {
-    println!("Start room info: \n\n {:?}", room.clone_info());
+    println!("Start room info: \n\n {:#?}", room.clone_info());
     tokio::spawn(async move {
         while room.subscribe_info().next().await.is_some() {
             // println!("Updated room info: \n\n {:?}", info);
@@ -81,10 +82,11 @@ async fn room_info_experiment(client: Client, room: Room) {
 }
 
 async fn element_call(client: Client, room: Room) {
-    let props = ClientProperties::new("tauri.widget.container", None, None);
+    let props = ClientProperties::new("tauri.widget.container", None, Some("dark".to_owned()));
 
     let options = VirtualElementCallWidgetOptions {
-        element_call_url: "https://call.element.dev".to_owned(),
+        element_call_url: "https://call.element.io".to_owned(),
+        // element_call_url: "https://localhost:3000".to_owned(),
         widget_id: "w_id_1234".to_owned(),
         parent_url: None,
         hide_header: None,
@@ -95,6 +97,7 @@ async fn element_call(client: Client, room: Room) {
         confine_to_room: None,
         analytics_id: None,
         font: None,
+        encryption: EncryptionSystem::Unencrypted,
     };
 
     let widget_settings = WidgetSettings::new_virtual_element_call_widget(options)

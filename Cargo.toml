@@ -25,8 +25,8 @@ url = "2.4.1"
 clone_all = "0.1.1"
 
 [dependencies.matrix-sdk]
-path = "../../matrix-rust-sdk/crates/matrix-sdk"
-version = "0.6.0"
+path = "../matrix-rust-sdk/crates/matrix-sdk"
+version = "0.7.1"
 features = ["experimental-widgets"]
 
 [features]

@@ -24,7 +24,7 @@ pub fn get_args() -> Args {
                 "Usage: {} <homeserver_url> <username> <password> <room_id>",
                 env::args().next().unwrap()
             );
-            // exist if missing
+            // exit if missing
             exit(1)
         }
     }
