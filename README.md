@@ -1,6 +1,12 @@
-# Tauri + Vanilla
+# Matrix widget container
 
-This template should help get you started developing with Tauri in vanilla HTML, CSS and Javascript.
+This is a simple app that starts the matrix rust SDK.
+
+It will load the url defined in the command line arguments and put it into a widget environment.
+
+This is not build to the standards of production grade software but is very usefulto test the widget driver capabilities of the matrix-rust-sdk.
+
+
 
 ## Recommended IDE Setup
 
@@ -13,3 +19,12 @@ Tauri also needs the gtk and C build tools see: https://tauri.app/v1/guides/gett
 # Run the app
 
 `yarn tauri dev`
+
+using these command line parameters:
+
+```
+"widget_url",
+"user_id",
+"password",
+"room_id_for_for_the_widget_driver"
+```
